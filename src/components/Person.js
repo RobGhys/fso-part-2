@@ -1,11 +1,11 @@
 import React from 'react'
 
-const Note = ({note}) => {
+const Person = ({person}) => {
     // No need for the note.id to be added as key
     // This has to be dealt with at the low level
     return (
-        <li>{note.content}</li>
+        <li>{person.name}</li>
     )
 }
 
-export default Note
+export default Person
