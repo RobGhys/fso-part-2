@@ -13,8 +13,18 @@ const App = (props) => {
             name: newName
         }
 
-        setPersons(persons.concat(personObject));
-        setNewName('');
+        let nameExists = false;
+
+        persons.forEach(persons => {
+            if (persons.name === personObject.name) {
+                nameExists = true;
+            }
+        })
+
+        if (nameExists === false) {
+            setPersons(persons.concat(personObject));
+            setNewName('');
+        }
     }
 
     const handleNameChange = (event) => {
