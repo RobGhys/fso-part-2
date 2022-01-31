@@ -11,7 +11,8 @@ const App = () => {
     const [notes, setNotes] = useState([])
     const [newNote, setNewNote] = useState('')
     const [showAll, setShowAll] = useState(false)
-    const [errorMessage, setErrorMessage] = useState('some error happened...')
+    const [errorMessage, setErrorMessage] = useState(null)
+    const [successMessage, setSuccessMessage] = useState(null)
 
     /**
      * Function ("effects") gets executed after rendering
@@ -39,6 +40,12 @@ const App = () => {
             .then(returnedNote => {
                 setNotes(notes.concat(returnedNote))
                 setNewNote('')
+                setSuccessMessage(
+                    `Added new note with id: '${returnedNote.id}' `
+                )
+                setTimeout(() => {
+                    setSuccessMessage(null)
+                }, 3000)
             })
     }
 
@@ -61,8 +68,6 @@ const App = () => {
                 setTimeout(() => {
                     setErrorMessage(null)
                 }, 5000)
-                // Filter method: returns only the items for which the function that we passed as parameter returns true
-                setNotes(notes.filter(n => n.id !== id))
             })
     }
 
@@ -78,7 +83,8 @@ const App = () => {
     return (
         <div>
             <h1>Notes</h1>
-            <Notification message={errorMessage} />
+            <Notification message={errorMessage} styling={'error'} />
+            <Notification message={successMessage} styling={'success'} />
             <div>
                 <button onClick={() => setShowAll(!showAll)}>
                     show {showAll ? 'important' : 'all' }
