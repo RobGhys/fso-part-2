@@ -3,12 +3,15 @@ import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 
 import Note from './components/Note'
-import noteService from './services/notes'
+import Notification from './components/Notification'
+import Footer from './components/Footer'
+import noteService from './services/note'
 
 const App = () => {
     const [notes, setNotes] = useState([])
     const [newNote, setNewNote] = useState('')
     const [showAll, setShowAll] = useState(false)
+    const [errorMessage, setErrorMessage] = useState('some error happened...')
 
     /**
      * Function ("effects") gets executed after rendering
@@ -52,9 +55,12 @@ const App = () => {
                 setNotes(notes.map(note => note.id !== id ? note : returnedNote))
             })
             .catch(err => {
-                alert(
-                    `the note '${note.content}' was already deleted from server`
+                setErrorMessage(
+                    `Note '${note.content}' was already removed from server`
                 )
+                setTimeout(() => {
+                    setErrorMessage(null)
+                }, 5000)
                 // Filter method: returns only the items for which the function that we passed as parameter returns true
                 setNotes(notes.filter(n => n.id !== id))
             })
@@ -72,6 +78,7 @@ const App = () => {
     return (
         <div>
             <h1>Notes</h1>
+            <Notification message={errorMessage} />
             <div>
                 <button onClick={() => setShowAll(!showAll)}>
                     show {showAll ? 'important' : 'all' }
@@ -93,6 +100,7 @@ const App = () => {
                 />
                 <button type="submit">save</button>
             </form>
+            <Footer />
         </div>
     )
 }
