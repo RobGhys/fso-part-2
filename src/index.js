@@ -1,15 +1,4 @@
 import ReactDOM from 'react-dom'
-import App from './App'
+import App from './App.js'
 
-const persons = [
-    {
-        id: 1,
-        name: 'Arto Hellas',
-        tel: '026522171'
-    }
-]
-
-ReactDOM.render(
-    <App persons={persons} />,
-    document.getElementById('root')
-)
+ReactDOM.render(<App />, document.getElementById('root'))
