@@ -18,10 +18,10 @@ const App = () => {
      * Function ("effects") gets executed after rendering
      */
     useEffect(() => {
-        noteService
-            .getAll()
-            .then(initialNotes => {
-                setNotes(initialNotes)
+        axios
+            .get('http://localhost:3001/api/notes')
+            .then(res => {
+                setNotes(res.data)
             })
     }, [])
 
