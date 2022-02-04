@@ -1,38 +1,36 @@
-import React, { useState, useEffect } from 'react'
-
-import axios from 'axios'
-
+import React, { useState, useEffect, useRef } from 'react'
 import Note from './components/Note'
 import Notification from './components/Notification'
 import Footer from './components/Footer'
 import Togglable from './components/Togglable'
 import LoginForm from './components/LoginForm'
 import NoteForm from './components/NoteForm'
-
 import noteService from './services/notes'
 import loginService from './services/login'
 
 const App = () => {
-    const [loginVisible, setLoginVisible] = useState(false)
+    /*const [loginVisible, setLoginVisible] = useState(false)*/
     const [notes, setNotes] = useState([])
-    const [newNote, setNewNote] = useState('')
     const [showAll, setShowAll] = useState(false)
     const [errorMessage, setErrorMessage] = useState(null)
     const [successMessage, setSuccessMessage] = useState(null)
 
-    const [username, setUsername] = useState('rorob')
-    const [password, setPassword] = useState('salut')
+    const [username, setUsername] = useState('')
+    const [password, setPassword] = useState('')
 
     const [user, setUser] = useState(null)
 
-    /**
-     * Function ("effects") gets executed after rendering
-     */
+    const noteFormRef = useRef()
+
+    /*****************************
+     *        USE EFFECT         *
+     *****************************/
+     // Function ("effects") gets executed after rendering
     useEffect(() => {
-        axios
-            .get('http://localhost:3001/api/notes')
-            .then(res => {
-                setNotes(res.data)
+        noteService
+            .getAll()
+            .then(initialNotes => {
+                setNotes(initialNotes)
             })
     }, [])
 
@@ -46,30 +44,35 @@ const App = () => {
         }
     }, [])
 
-    const addNote = (event) => {
-        event.preventDefault()
-        const noteObject = {
-            content: newNote,
-            date: new Date().toISOString(),
-            important: Math.random() > 0.5,
-            id: notes.length + 1,
-        }
+    const notesToShow = showAll
+        ? notes
+        : notes.filter(note => note.important)
 
-        // Use axios' post method to send an object to the server
-        noteService
-            .create(noteObject)
-            .then(returnedNote => {
-                setNotes(notes.concat(returnedNote))
-                setNewNote('')
-                setSuccessMessage(
-                    `Added new note with id: '${returnedNote.id}' `
-                )
-                setTimeout(() => {
-                    setSuccessMessage(null)
-                }, 3000)
-            })
-    }
+    /*****************************
+     *          Forms            *
+     *****************************/
+    const loginForm = () => (
+        <Togglable buttonLabel='login'>
+            <LoginForm username={username} password={password}
+                handleUsernameChange={({ target }) => setUsername(target.value)}
+                handlePasswordChange={({ target }) => setPassword(target.value)}
+                handleSubmit={handleLogin}
+            />
+        </Togglable>
+    )
 
+    const noteForm = () => (
+        // Assign a noteFormRef ref to the Togglable component
+        // to give a reference to the component
+        <Togglable buttonLabel="new note" ref={noteFormRef}>
+            <NoteForm createNote={addNote}/>
+        </Togglable>
+    )
+
+    /*****************************
+     *          Helpers          *
+     *****************************/
+    // Show important notes or not
     const toggleImportanceOf = id => {
         // Find the note to modify
         const note = notes.find(n => n.id === id)
@@ -92,16 +95,19 @@ const App = () => {
             })
     }
 
-    const handleNoteChange = (event) => {
-        console.log(event.target.value)
-        setNewNote(event.target.value)
+    // Create new note
+    const addNote = (noteObject) => {
+        noteFormRef.current.toggleVisibility()
+
+        // Use axios' post method to send an object to the server
+        noteService
+            .create(noteObject)
+            .then(returnedNote => {
+                setNotes(notes.concat(returnedNote))
+            })
     }
 
-    const notesToShow = showAll
-        ? notes
-        : notes.filter(note => note.important)
-
-    // Login
+    // Login management
     const handleLogin = async (event) => {
         event.preventDefault()
 
@@ -126,27 +132,9 @@ const App = () => {
         }
     }
 
-    const loginForm = () => (
-        <Togglable buttonLabel='login'>
-            <LoginForm username={username} password={password}
-                handleUsernameChange={({ target }) => setUsername(target.value)}
-                handlePasswordChange={({ target }) => setPassword(target.value)}
-                handleSubmit={handleLogin}
-            />
-        </Togglable>
-    )
-
-    const noteForm = () => (
-        <Togglable buttonLabel="new note">
-            <NoteForm
-                onSubmit={addNote}
-                value={newNote}
-                handleChange={handleNoteChange}
-            />
-        </Togglable>
-    )
-
-
+    /*****************************
+     *          Return           *
+     *****************************/
     return (
         <div>
             <h1>Notes</h1>
